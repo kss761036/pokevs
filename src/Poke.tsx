@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  Button,
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent,
+} from "@mui/material";
 
 interface Pokemon {
   name: string;
@@ -9,9 +20,7 @@ interface Pokemon {
 }
 
 interface SpeciesName {
-  language: {
-    name: string;
-  };
+  language: { name: string };
   name: string;
 }
 
@@ -19,10 +28,26 @@ interface PokemonSpeciesResponse {
   names: SpeciesName[];
 }
 
+interface PokemonDetailResponse {
+  height: number;
+  weight: number;
+  base_experience: number;
+  sprites: { front_default: string };
+  types: { type: { name: string } }[];
+}
+
 const Poke = () => {
   const [pokemonData, setPokemonData] = useState<Pokemon[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pokemonPerPage = 10;
+  const [selectedPokemonId, setSelectedPokemonId] = useState<string | null>(
+    null
+  );
+  const [modalData, setModalData] = useState<PokemonDetailResponse | null>(
+    null
+  );
+  const [open, setOpen] = useState(false);
+
+  const pokemonPerPage = 300;
 
   useEffect(() => {
     const fetchPokemon = async () => {
@@ -43,16 +68,11 @@ const Poke = () => {
         const speciesRes = await axios.get<PokemonSpeciesResponse>(
           `https://pokeapi.co/api/v2/pokemon-species/${p.id}`
         );
-        const koreanEntry = speciesRes.data.names.find(
-          (name) => name.language.name === "ko"
-        );
+        const ko = speciesRes.data.names.find((n) => n.language.name === "ko");
         setPokemonData((prev) =>
           prev.map((item) =>
             item.id === p.id
-              ? {
-                  ...item,
-                  koreanName: koreanEntry ? koreanEntry.name : item.name,
-                }
+              ? { ...item, koreanName: ko ? ko.name : p.name }
               : item
           )
         );
@@ -62,22 +82,76 @@ const Poke = () => {
     fetchPokemon();
   }, [currentPage]);
 
+  useEffect(() => {
+    const fetchDetail = async () => {
+      if (selectedPokemonId) {
+        const res = await axios.get<PokemonDetailResponse>(
+          `https://pokeapi.co/api/v2/pokemon/${selectedPokemonId}`
+        );
+        setModalData(res.data);
+        setOpen(true);
+      }
+    };
+    fetchDetail();
+  }, [selectedPokemonId]);
+
+  const handleClose = () => {
+    setOpen(false);
+    setModalData(null);
+    setSelectedPokemonId(null);
+  };
+
   return (
     <>
-      {pokemonData.map((pokemon) => (
-        <div
-          key={pokemon.id}
-          className="flex flex-col items-center justify-center">
-          <h1 className="text-2xl font-bold">
-            {pokemon.koreanName || pokemon.name}
-          </h1>
-          <img
-            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
-            alt={pokemon.koreanName || pokemon.name}
-            className="w-32 h-32"
-          />
-        </div>
-      ))}
+      <div className="max-w-[1200px] mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {pokemonData.map((pokemon) => (
+          <div key={pokemon.id}>
+            <Card>
+              <CardActionArea onClick={() => setSelectedPokemonId(pokemon.id)}>
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png`}
+                  alt={pokemon.name}
+                />
+                <CardContent>
+                  <Typography variant="h6" align="center">
+                    {pokemon.koreanName || pokemon.name}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </div>
+        ))}
+      </div>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>포켓몬 정보</DialogTitle>
+        <DialogContent>
+          {modalData && (
+            <>
+              <img
+                src={modalData.sprites.front_default}
+                alt=""
+                style={{ display: "block", margin: "0 auto" }}
+              />
+              <Typography>키: {modalData.height / 10} m</Typography>
+              <Typography>몸무게: {modalData.weight / 10} kg</Typography>
+              <Typography>기본 경험치: {modalData.base_experience}</Typography>
+              <Typography>
+                타입: {modalData.types.map((t) => t.type.name).join(", ")}
+              </Typography>
+              <Button
+                onClick={handleClose}
+                fullWidth
+                variant="contained"
+                sx={{ mt: 2 }}>
+                닫기
+              </Button>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
