@@ -1,54 +1,40 @@
-# React + TypeScript + Vite
+# 🐱‍👤 PokeVS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+포켓몬 두 마리를 선택하면, OpenAI GPT가 누가 이길지 예측해주는 AI 대결 시뮬레이터입니다.
 
-Currently, two official plugins are available:
+![썸네일](./public/thumbnail.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🧩 주요 기능
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 🎯 드래그앤드롭으로 포켓몬 선택
+- 🧠 GPT-3.5-turbo를 통한 승부 예측
+- ✨ 10% 확률로 이로치 포켓몬 등장
+- 🔍 타입·이름 필터로 빠른 검색
+- ⚡ 무한스크롤로 최대 300마리까지 로딩
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 기술 스택
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- React + TypeScript + Vite
+- React DnD (드래그앤드롭)
+- Framer Motion (애니메이션)
+- MUI (UI 컴포넌트)
+- OpenAI API (GPT-3.5)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+---
+
+## 🛠️ 사용 방법
+
+```bash
+# 설치
+npm install
+
+# .env 파일 설정
+VITE_OPENAI_API_KEY=your_openai_api_key_here
+
+# 실행
+npm run dev
 ```
