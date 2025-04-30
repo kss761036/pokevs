@@ -3,6 +3,7 @@ import Input from "@mui/material/Input";
 import { useDrop } from "react-dnd";
 import { useRef, useEffect, useState } from "react";
 import { Pokemon } from "./type";
+import PokeDrop from "./PokeDrop";
 
 const PokeFloat = () => {
   const ref1 = useRef<HTMLLIElement>(null);
@@ -48,38 +49,8 @@ const PokeFloat = () => {
         </ul>
       </form>
       <ul className="flex">
-        <li ref={ref1} className="flex-1 p-1">
-          <Card variant="outlined">
-            <div className="aspect-1/1 flex items-center justify-center">
-              {poke1 ? (
-                <img
-                  src={`https://projectpokemon.org/images/normal-sprite/${poke1.engName}.gif`}
-                  alt={poke1.name}
-                  className="max-w-[80px]"
-                />
-              ) : (
-                <span className="text-gray-400">드롭하세요</span>
-              )}
-            </div>
-            <h4 className="text-center">{poke1?.name || " "}</h4>
-          </Card>
-        </li>
-        <li ref={ref2} className="flex-1 p-1">
-          <Card variant="outlined">
-            <div className="aspect-1/1 flex items-center justify-center">
-              {poke2 ? (
-                <img
-                  src={`https://projectpokemon.org/images/normal-sprite/${poke2.engName}.gif`}
-                  alt={poke2.name}
-                  className="max-w-[80px]"
-                />
-              ) : (
-                <span className="text-gray-400">드롭하세요</span>
-              )}
-            </div>
-            <h4 className="text-center">{poke2?.name || " "}</h4>
-          </Card>
-        </li>
+        <PokeDrop dropped={poke1} onDrop={setPoke1} />
+        <PokeDrop dropped={poke2} onDrop={setPoke2} />
       </ul>
     </div>
   );

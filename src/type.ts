@@ -18,4 +18,5 @@ export interface Pokemon {
   names?: NameEntry[];
   image?: string;
   engName?: string;
+  isShiny?: boolean;
 }
