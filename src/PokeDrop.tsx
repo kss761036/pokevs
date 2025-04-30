@@ -73,7 +73,7 @@ const PokeDrop = ({ onDrop, dropped }: PokeDropProps) => {
         <></>
       ) : (
         <>
-          <Card variant="outlined" className="text-[13px] font-medium p-2 mt-2">
+          <Card variant="outlined" className="text-[12px] font-medium p-2 mt-2">
             <h4 className="text-center py-2 font-bold text-[15px]">
               {dropped && dropped.isShiny && <span>✨</span>}
               {dropped?.name || " "}
