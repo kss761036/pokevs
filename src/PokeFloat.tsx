@@ -48,7 +48,7 @@ const PokeFloat = () => {
           </li>
         </ul>
       </form>
-      <ul className="flex">
+      <ul className="flex items-start">
         <PokeDrop dropped={poke1} onDrop={setPoke1} />
         <PokeDrop dropped={poke2} onDrop={setPoke2} />
       </ul>

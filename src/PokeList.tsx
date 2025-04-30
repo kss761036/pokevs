@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PokeItem from "./PokeItem";
-import { Pokemon, PokemonSpecies } from "./type";
+import { Pokemon, PokemonSpecies, TypeInfo, typeMap } from "./type";
 
 const PokeList = () => {
   const [pokeData, setPokeData] = useState<Pokemon[]>([]);
@@ -27,12 +27,22 @@ const PokeList = () => {
             (n) => n.language.name === "ko"
           );
 
+          const types = (detailRes.data.types as TypeInfo[]).map(
+            (t) => typeMap[t.type.name] || t.type.name
+          );
+
+          const description = speciesRes.data.flavor_text_entries
+            .find((entry) => entry.language.name === "ko")
+            ?.flavor_text.replace(/\n|\f/g, " ");
+
           return {
             id,
             name: koName?.name || pokemon.name,
             url: pokemon.url,
             image: `https://img.pokemondb.net/sprites/black-white/normal/${pokemon.name}.png`,
             engName: pokemon.name,
+            types: types,
+            description: description,
           };
         })
       );
@@ -41,8 +51,6 @@ const PokeList = () => {
     };
     fetchPoke();
   }, []);
-
-  console.log(pokeData);
 
   return (
     <>

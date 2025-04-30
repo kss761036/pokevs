@@ -1,7 +1,8 @@
 import { useDrop } from "react-dnd";
 import Card from "@mui/material/Card";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Pokemon } from "./type";
+import CircularProgress from "@mui/material/CircularProgress";
 
 interface PokeDropProps {
   onDrop: (pokemon: Pokemon) => void;
@@ -11,16 +12,23 @@ interface PokeDropProps {
 const PokeDrop = ({ onDrop, dropped }: PokeDropProps) => {
   const ref = useRef<HTMLLIElement>(null);
 
+  const [loading, setLoading] = useState(false);
+
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "POKEMON_CARD",
     drop: (item: Pokemon) => {
-      const isShiny = Math.random() < 0.3;
+      setLoading(true);
+      const isShiny = Math.random() < 0.2;
       const updated = {
         ...item,
         isShiny,
         image: isShiny
-          ? `https://projectpokemon.org/images/shiny-sprite/${item.engName}.gif`
-          : `https://projectpokemon.org/images/normal-sprite/${item.engName}.gif`,
+          ? `https://projectpokemon.org/images/shiny-sprite/${
+              item.engName
+            }.gif?${Date.now()}`
+          : `https://projectpokemon.org/images/normal-sprite/${
+              item.engName
+            }.gif?${Date.now()}`,
       };
       onDrop(updated);
     },
@@ -31,27 +39,52 @@ const PokeDrop = ({ onDrop, dropped }: PokeDropProps) => {
 
   useEffect(() => {
     if (ref.current) drop(ref.current);
-  }, [drop]);
+  }, [drop, ref]);
 
   return (
-    <li ref={ref} className={`flex-1 p-1 ${isOver ? "bg-green-100" : ""}`}>
+    <li ref={ref} className={`flex-1 p-1 ${isOver ? "bg-yellow-200" : ""}`}>
       <Card variant="outlined">
-        <div className="aspect-1/1 flex items-center justify-center">
+        <div className="aspect-1/1 flex items-center justify-center relative">
           {dropped ? (
-            <img
-              src={dropped.image}
-              alt={dropped.name}
-              className="max-w-[80px]"
-            />
+            <>
+              {loading && (
+                <div className="absolute w-full h-full flex justify-center items-center bg-white">
+                  <CircularProgress size={24} />
+                </div>
+              )}
+              <img
+                src={dropped.image}
+                alt={dropped.name}
+                className="max-w-[80px]"
+                onLoad={() => setLoading(false)}
+                onError={() => setLoading(false)}
+              />
+            </>
           ) : (
-            <span className="text-gray-400">드롭하세요</span>
+            <span className="text-gray-400 text-center">
+              포켓몬을 👉
+              <br />
+              끌어오세요
+            </span>
           )}
         </div>
       </Card>
-      <h4 className="text-center">
-        {dropped && dropped.isShiny && <span>✨</span>}
-        {dropped?.name || " "}
-      </h4>
+      {loading || !dropped ? (
+        <></>
+      ) : (
+        <>
+          <Card variant="outlined" className="text-[13px] font-medium p-2 mt-2">
+            <h4 className="text-center py-2 font-bold text-[15px]">
+              {dropped && dropped.isShiny && <span>✨</span>}
+              {dropped?.name || " "}
+            </h4>
+            <h5 className="break-keep ">{dropped?.description}</h5>
+            <h5 className="mt-1.5 pt-1.5 border-t border-[#dddddd]">
+              {dropped?.types}
+            </h5>
+          </Card>
+        </>
+      )}
     </li>
   );
 };
