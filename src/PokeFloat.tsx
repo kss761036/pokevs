@@ -10,6 +10,7 @@ import TextField from "@mui/material/TextField";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import { motion } from "framer-motion";
 
 const PokeFloat = () => {
   const ref1 = useRef<HTMLLIElement>(null);
@@ -62,7 +63,23 @@ const PokeFloat = () => {
                 />
               </Button>
             </div>
-            <ul className="flex items-start">
+            <ul className="flex items-start relative">
+              {poke1 && poke2 && (
+                <motion.button
+                  type="button"
+                  className="absolute left-1/2 top-[65px] -translate-1/2 cursor-pointer z-20 hover:bg-[rgba(253,199,23,0.2)] transition p-2 rounded-[5px]"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 0.8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}>
+                  <span className="text-[14px] font-bold">Click!</span>
+                  <img className="h-[35px]" src="/vs.png" alt="vs아이콘" />
+                </motion.button>
+              )}
               <PokeDrop dropped={poke1} onDrop={setPoke1} />
               <PokeDrop dropped={poke2} onDrop={setPoke2} />
             </ul>

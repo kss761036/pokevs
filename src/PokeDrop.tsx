@@ -61,10 +61,10 @@ const PokeDrop = ({ onDrop, dropped }: PokeDropProps) => {
               />
             </>
           ) : (
-            <span className="text-gray-400 text-center">
+            <span className="text-gray-400 text-center text-[14px]">
               포켓몬을 👉
               <br />
-              끌어오세요
+              드랍하세요!
             </span>
           )}
         </div>
