@@ -4,6 +4,8 @@ import PokeItem from "./PokeItem";
 import { Pokemon, PokemonSpecies, TypeInfo, typeMap } from "./type";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Skeleton from "@mui/material/Skeleton";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
 
 interface PokeListProps {
   filterName: string;
@@ -28,6 +30,9 @@ const PokeList = ({ filterName, filterTypes }: PokeListProps) => {
   const [filteredData, setFilteredData] = useState<Pokemon[]>([]);
   const [visibleCount, setVisibleCount] = useState(39);
   const [loading, setLoading] = useState(false);
+
+  const [selected, setSelected] = useState<Pokemon | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchAllPokemon = async () => {
@@ -109,20 +114,62 @@ const PokeList = ({ filterName, filterTypes }: PokeListProps) => {
   }
 
   return (
-    <InfiniteScroll
-      dataLength={pokeData.length}
-      next={fetchMore}
-      hasMore={pokeData.length < filteredData.length}
-      loader={<p className="text-center py-4">로딩 중...</p>}
-      scrollThreshold={1}>
-      <ul className="flex max-w-[500px] mx-auto flex-wrap">
-        {pokeData.map((pokemon) => (
-          <li className="w-1/3 p-1" key={pokemon.id}>
-            <PokeItem pokemon={pokemon} />
-          </li>
-        ))}
-      </ul>
-    </InfiniteScroll>
+    <>
+      <InfiniteScroll
+        dataLength={pokeData.length}
+        next={fetchMore}
+        hasMore={pokeData.length < filteredData.length}
+        loader={<p className="text-center py-4">로딩 중...</p>}
+        scrollThreshold={1}>
+        <ul className="flex max-w-[500px] mx-auto flex-wrap">
+          {pokeData.map((pokemon) => (
+            <li className="w-1/3 p-1" key={pokemon.id}>
+              <PokeItem
+                pokemon={pokemon}
+                onClick={() => {
+                  setSelected(pokemon);
+                  setOpen(true);
+                }}
+              />
+            </li>
+          ))}
+        </ul>
+      </InfiniteScroll>
+
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 300,
+            bgcolor: "background.paper",
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 3,
+          }}>
+          {selected && (
+            <>
+              <div className="flex items-center justify-center w-[230px] h-[230px] mx-auto">
+                <img
+                  src={selected.image}
+                  alt={selected.name}
+                  className="mx-auto w-[170px]"
+                />
+              </div>
+              <h2 className="text-xl font-bold text-center">{selected.name}</h2>
+              <p className="text-center mt-3 break-keep">
+                {selected.description}
+              </p>
+              <p className="text-center mt-3 text-gray-500">
+                {selected.types?.join(", ")}
+              </p>
+            </>
+          )}
+        </Box>
+      </Modal>
+    </>
   );
 };
 

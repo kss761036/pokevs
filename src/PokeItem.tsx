@@ -5,9 +5,10 @@ import { useEffect, useRef } from "react";
 
 interface PokeItemProps {
   pokemon: Pokemon;
+  onClick?: () => void;
 }
 
-const PokeItem = ({ pokemon }: PokeItemProps) => {
+const PokeItem = ({ pokemon, onClick }: PokeItemProps) => {
   const ref = useRef<HTMLDivElement>(null);
 
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -32,6 +33,7 @@ const PokeItem = ({ pokemon }: PokeItemProps) => {
 
   return (
     <div
+      onClick={onClick}
       ref={ref}
       className={`hover:bg-yellow-400 cursor-grab transition-all rounded-[4px] ${
         isDragging ? "hidden" : ""

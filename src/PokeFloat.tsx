@@ -1,5 +1,3 @@
-import Card from "@mui/material/Card";
-import Input from "@mui/material/Input";
 import { useDrop } from "react-dnd";
 import { useRef, useEffect, useState } from "react";
 import { Pokemon, typeMap } from "./type";
