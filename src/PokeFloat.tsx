@@ -9,6 +9,8 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { motion } from "framer-motion";
+import Modal from "@mui/material/Modal";
+import Box from "@mui/material/Box";
 
 interface PokeFloatProps {
   filterName: string;
@@ -17,12 +19,33 @@ interface PokeFloatProps {
   setFilterTypes: (types: string[]) => void;
 }
 
+function extractBetween(text: string, startTag: string, endTag: string) {
+  const start = text.indexOf(startTag);
+  const end = text.indexOf(endTag);
+  if (start === -1 || end === -1) return "";
+  return text.slice(start + startTag.length, end).trim();
+}
+
 const PokeFloat = ({
   filterName,
   setFilterName,
   filterTypes,
   setFilterTypes,
 }: PokeFloatProps) => {
+  const [loading, setLoading] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [result, setResult] = useState<{
+    winnerImg: string;
+    winner: string;
+    reason: string;
+    score: string;
+  }>({
+    winnerImg: "",
+    winner: "",
+    reason: "",
+    score: "",
+  });
+
   const ref1 = useRef<HTMLLIElement>(null);
   const ref2 = useRef<HTMLLIElement>(null);
 
@@ -59,87 +82,190 @@ const PokeFloat = ({
     if (ref2.current) drop2(ref2.current);
   }, [drop1, drop2]);
 
-  return (
-    <div className="">
-      <form action="">
-        <fieldset className="sr-only">검색</fieldset>
-        <ul className="flex flex-col gap-y-4 fixed top-[100px] left-1/2 translate-x-[calc(-100%_-_250px)] w-[300px] p-5">
-          <li>
-            <div className="flex justify-end">
-              <Button onClick={handleReset}>
-                <RestartAltRoundedIcon
-                  fontSize="small"
-                  sx={{ color: "#000000" }}
-                />
-              </Button>
-            </div>
-            <ul className="flex items-start relative">
-              {poke1 && poke2 && (
-                <motion.button
-                  type="button"
-                  className="absolute left-1/2 top-[65px] -translate-1/2 cursor-pointer z-20 hover:bg-[rgba(253,199,23,0.2)] transition p-2 rounded-[5px]"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 0.8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}>
-                  <span className="text-[14px] font-bold">Click!</span>
-                  <img className="h-[35px]" src="/vs.png" alt="vs아이콘" />
-                </motion.button>
-              )}
-              <PokeDrop dropped={poke1} onDrop={setPoke1} />
-              <PokeDrop dropped={poke2} onDrop={setPoke2} />
-            </ul>
-          </li>
-        </ul>
+  const handleVS = async () => {
+    if (!poke1 || !poke2) return;
 
-        <ul className="flex flex-col gap-y-4 fixed top-[100px] right-1/2 translate-x-[calc(100%_+_250px)] w-[300px] p-5">
-          <li>
-            <TextField
-              id="outlined-basic"
-              label="포켓몬 이름으로 검색하기"
-              variant="outlined"
-              className="w-full"
-              value={filterName}
-              onChange={(e) => setFilterName(e.target.value)}
-            />
-          </li>
-          <li>
-            <FormGroup className="!flex-row">
-              {Object.entries(typeMap).map(([key, label]) => (
-                <FormControlLabel
-                  className="w-1/2 m-0"
-                  key={key}
-                  control={
-                    <Checkbox
-                      size="small"
-                      checked={filterTypes.includes(label)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFilterTypes([...filterTypes, label]);
-                        } else {
-                          setFilterTypes(
-                            filterTypes.filter((t) => t !== label)
-                          );
-                        }
-                      }}
-                    />
-                  }
-                  label={label}
-                  sx={{
-                    margin: "0px",
-                    "& .MuiFormControlLabel-label": { fontSize: 14 },
-                  }}
-                />
-              ))}
-            </FormGroup>
-          </li>
-        </ul>
-      </form>
-    </div>
+    setLoading(true);
+    setResult({ winnerImg: "", winner: "", reason: "", score: "" });
+    setShowResult(false);
+
+    const prompt = `${poke1.name} - ${poke1?.engName || "Unknown"} (${
+      poke1?.types?.join(", ") || "Unknown"
+    }) - ${poke1?.description || "No description"}
+  VS
+  ${poke2.name} - ${poke2.engName} (${poke2?.types?.join(", ")}) - ${
+      poke2.description
+    }
+
+  이 두 포켓몬이 싸우면 누가 이길지 HTML 태그 형태로 알려줘.
+  그리고 실제로 얼마나 박빙으로 싸웠는지 스스로 판단해서 67.2 : 32.8 이런식으로 세밀하게 소수점 자리로 계산하고 최종스코어를 알려줘!
+  다음 구조를 꼭 지켜줘:
+  
+  <result>
+    <winnerImg>이긴 포켓몬의 소문자로 영어이름 *내 질문에 있는 영어 그대로</winnerImg>
+    <winner>이긴 포켓몬의 한글이름</winner>
+    <reason>한글로! 500자 내외로 스토리가 들어간 이유를 이야기해주듯이 흥미진진하게 기술이름을 포함해서 길게 말해줘 느낌표를 써주면 더 좋아!</reason>
+    <score>XX : YY *최종 스코어를 백분율로 알려줘 숫자 큰게 XX야</score>
+  </result>
+`;
+
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.8,
+        }),
+      });
+
+      const data = await res.json();
+      const aiText = data.choices[0]?.message?.content?.trim() || "";
+
+      const winnerImg = extractBetween(aiText, "<winnerImg>", "</winnerImg>");
+      const winner = extractBetween(aiText, "<winner>", "</winner>");
+      const reason = extractBetween(aiText, "<reason>", "</reason>");
+      const score = extractBetween(aiText, "<score>", "</score>");
+
+      setResult({ winnerImg, winner, reason, score });
+      setShowResult(true);
+    } catch (err) {
+      console.error(err);
+      setResult({
+        winnerImg: "",
+        winner: "",
+        reason: "AI 응답에 실패했습니다.",
+        score: "",
+      });
+      setShowResult(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return;
+
+  return (
+    <>
+      <div className="">
+        <form action="">
+          <fieldset className="sr-only">검색</fieldset>
+          <ul className="flex flex-col gap-y-4 fixed top-[100px] left-1/2 translate-x-[calc(-100%_-_250px)] w-[300px] p-5">
+            <li>
+              <div className="flex justify-end">
+                <Button onClick={handleReset}>
+                  <RestartAltRoundedIcon
+                    fontSize="small"
+                    sx={{ color: "#000000" }}
+                  />
+                </Button>
+              </div>
+              <ul className="flex items-start relative">
+                {poke1 && poke2 && (
+                  <motion.button
+                    type="button"
+                    onClick={handleVS}
+                    disabled={loading}
+                    className="absolute left-1/2 top-[65px] -translate-1/2 cursor-pointer z-20 hover:bg-[rgba(255,158,141,0.4)] transition p-2 rounded-[5px]"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}>
+                    <span className="text-[14px] font-bold">Click!</span>
+                    <img className="h-[35px]" src="/vs.png" alt="vs아이콘" />
+                  </motion.button>
+                )}
+                <PokeDrop dropped={poke1} onDrop={setPoke1} />
+                <PokeDrop dropped={poke2} onDrop={setPoke2} />
+              </ul>
+            </li>
+          </ul>
+
+          <ul className="flex flex-col gap-y-4 fixed top-[100px] right-1/2 translate-x-[calc(100%_+_250px)] w-[300px] p-5">
+            <li>
+              <TextField
+                id="outlined-basic"
+                label="포켓몬 이름으로 검색하기"
+                variant="outlined"
+                className="w-full"
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+              />
+            </li>
+            <li>
+              <FormGroup className="!flex-row">
+                {Object.entries(typeMap).map(([key, label]) => (
+                  <FormControlLabel
+                    className="w-1/2 m-0"
+                    key={key}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={filterTypes.includes(label)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFilterTypes([...filterTypes, label]);
+                          } else {
+                            setFilterTypes(
+                              filterTypes.filter((t) => t !== label)
+                            );
+                          }
+                        }}
+                      />
+                    }
+                    label={label}
+                    sx={{
+                      margin: "0px",
+                      "& .MuiFormControlLabel-label": { fontSize: 14 },
+                    }}
+                  />
+                ))}
+              </FormGroup>
+            </li>
+          </ul>
+        </form>
+      </div>
+      {showResult && (
+        <Modal open={true} onClose={() => setShowResult(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 500,
+              bgcolor: "background.paper",
+              borderRadius: 2,
+              boxShadow: 24,
+              p: 4,
+            }}>
+            <div className="flex flex-col items-center justify-center gap-y-5">
+              <img
+                className="w-[120px]"
+                src={`https://projectpokemon.org/images/normal-sprite/${result.winnerImg}.gif`}
+                alt={result.winner}
+              />
+              <h3 className="text-[20px] font-bold">{result.winner}🏆</h3>
+              <p className="text-[14px] font-medium break-keep text-center">
+                {result.reason}
+              </p>
+              <p className="text-gray-500">
+                <b className="font-bold text-[#333333]">🎯스코어&nbsp;&nbsp;</b>
+                {result.score}
+              </p>
+            </div>
+          </Box>
+        </Modal>
+      )}
+    </>
   );
 };
 
