@@ -12,7 +12,19 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { motion } from "framer-motion";
 
-const PokeFloat = () => {
+interface PokeFloatProps {
+  filterName: string;
+  setFilterName: (value: string) => void;
+  filterTypes: string[];
+  setFilterTypes: (types: string[]) => void;
+}
+
+const PokeFloat = ({
+  filterName,
+  setFilterName,
+  filterTypes,
+  setFilterTypes,
+}: PokeFloatProps) => {
   const ref1 = useRef<HTMLLIElement>(null);
   const ref2 = useRef<HTMLLIElement>(null);
 
@@ -93,6 +105,8 @@ const PokeFloat = () => {
               label="포켓몬 이름으로 검색하기"
               variant="outlined"
               className="w-full"
+              value={filterName}
+              onChange={(e) => setFilterName(e.target.value)}
             />
           </li>
           <li>
@@ -104,12 +118,15 @@ const PokeFloat = () => {
                   control={
                     <Checkbox
                       size="small"
-                      sx={{
-                        pl: 0,
-                        pr: 1,
-                        "& .MuiSvgIcon-root": {
-                          fontSize: 18,
-                        },
+                      checked={filterTypes.includes(label)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFilterTypes([...filterTypes, label]);
+                        } else {
+                          setFilterTypes(
+                            filterTypes.filter((t) => t !== label)
+                          );
+                        }
                       }}
                     />
                   }
