@@ -12,7 +12,7 @@ const PokeItem = ({ pokemon }: PokeItemProps) => {
 
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "POKEMON_CARD",
-    item: { id: pokemon.id, name: pokemon.name },
+    item: { id: pokemon.id, name: pokemon.name, engName: pokemon.engName },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
@@ -28,7 +28,7 @@ const PokeItem = ({ pokemon }: PokeItemProps) => {
     <div
       ref={ref}
       className={`hover:bg-yellow-400 cursor-grab transition-all ${
-        isDragging ? "border border-amber-950" : ""
+        isDragging ? "hidden" : ""
       }`}>
       <Card variant="outlined" sx={{ backgroundColor: "transparent" }}>
         <div className="flex justify-center">
