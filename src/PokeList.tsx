@@ -1,28 +1,7 @@
-import Card from "@mui/material/Card";
 import axios from "axios";
 import { useEffect, useState } from "react";
-
-interface Language {
-  name: string;
-}
-
-interface NameEntry {
-  language: Language;
-  name: string;
-}
-
-interface PokemonSpecies {
-  names: NameEntry[];
-}
-
-interface Pokemon {
-  id: number;
-  name: string;
-  url: string;
-  names?: NameEntry[];
-  image?: string;
-  engName?: string;
-}
+import PokeItem from "./PokeItem";
+import { Pokemon, PokemonSpecies } from "./type";
 
 const PokeList = () => {
   const [pokeData, setPokeData] = useState<Pokemon[]>([]);
@@ -70,19 +49,7 @@ const PokeList = () => {
       <ul className="flex max-w-[500px] mx-auto flex-wrap">
         {pokeData.map((pokemon) => (
           <li className="w-1/3 p-1" key={pokemon.id}>
-            <div className="hover:bg-yellow-400 cursor-grab transition-all">
-              <Card variant="outlined" sx={{ backgroundColor: "transparent" }}>
-                <div className="flex justify-center">
-                  <img
-                    src={pokemon.image}
-                    alt={pokemon.name}
-                    draggable="false"
-                    className="select-none pointer-events-none"
-                  />
-                </div>
-                <h3 className="text-center py-2">{pokemon.name}</h3>
-              </Card>
-            </div>
+            <PokeItem pokemon={pokemon} />
           </li>
         ))}
       </ul>
