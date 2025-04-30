@@ -1,11 +1,16 @@
 import "./App.css";
-import Poke from "./Poke";
+import PokeList from "./PokeList";
+import PokeFloat from "./PokeFloat";
 
 function App() {
   return (
-    <>
-      <Poke></Poke>
-    </>
+    <div className="relative">
+      <div className="flex justify-center py-3">
+        <img className="h-[100px]" src="/logo.png" alt="로고" />
+      </div>
+      <PokeList></PokeList>
+      <PokeFloat></PokeFloat>
+    </div>
   );
 }
 

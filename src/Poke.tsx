@@ -103,6 +103,9 @@ const Poke = () => {
 
   return (
     <>
+      <div className="flex justify-center items-center py-4">
+        <img className="h-[100px]" src="/public/logo.png" alt="로고" />
+      </div>
       <div className="max-w-[1200px] mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {pokemonData.map((pokemon) => (
           <div key={pokemon.id}>
