@@ -147,10 +147,13 @@ const PokeFloat = ({
     }
   };
 
-  if (loading) return;
-
   return (
     <>
+      {loading && (
+        <div className="fixed inset-0 bg-[rgba(255,255,255,0.5)] z-50 flex justify-center items-center">
+          <div className="loader"></div>
+        </div>
+      )}
       <div className="">
         <form action="">
           <fieldset className="sr-only">검색</fieldset>
