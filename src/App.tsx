@@ -15,7 +15,7 @@ function App() {
 
   return (
     <DndProvider backend={MultiBackend} options={HTML5toTouch}>
-      <div className="relative">
+      <div className="relative pb-[300px] lg:pb-[0px]">
         <div className="flex justify-center py-3">
           <img className="h-[100px]" src="/logo.png" alt="로고" />
         </div>

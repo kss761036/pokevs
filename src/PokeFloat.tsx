@@ -154,88 +154,83 @@ const PokeFloat = ({
           <div className="loader"></div>
         </div>
       )}
-      <div className="">
-        <form action="">
-          <fieldset className="sr-only">검색</fieldset>
-          <ul className="flex flex-col gap-y-4 fixed top-[100px] left-1/2 translate-x-[calc(-100%_-_250px)] w-[300px] p-5">
-            <li>
-              <div className="flex justify-end">
-                <Button onClick={handleReset}>
-                  <RestartAltRoundedIcon
-                    fontSize="small"
-                    sx={{ color: "#000000" }}
-                  />
-                </Button>
-              </div>
-              <ul className="flex items-start relative">
-                {poke1 && poke2 && (
-                  <motion.button
-                    type="button"
-                    onClick={handleVS}
-                    disabled={loading}
-                    className="absolute left-1/2 top-[65px] -translate-1/2 cursor-pointer z-20 hover:bg-[rgba(255,158,141,0.4)] transition p-2 rounded-[5px]"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}>
-                    <span className="text-[14px] font-bold">Click!</span>
-                    <img className="h-[35px]" src="/vs.png" alt="vs아이콘" />
-                  </motion.button>
-                )}
-                <PokeDrop dropped={poke1} onDrop={setPoke1} />
-                <PokeDrop dropped={poke2} onDrop={setPoke2} />
-              </ul>
-            </li>
-          </ul>
 
-          <ul className="flex flex-col gap-y-4 fixed top-[100px] right-1/2 translate-x-[calc(100%_+_250px)] w-[300px] p-5">
-            <li>
-              <TextField
-                id="outlined-basic"
-                label="포켓몬 이름으로 검색하기"
-                variant="outlined"
-                className="w-full"
-                value={filterName}
-                onChange={(e) => setFilterName(e.target.value)}
+      <ul className="flex flex-col gap-y-4 bg-white border-[1px] border-b-0 border-[#aaa] fixed p-5 bottom-0 top-auto left-1/2 translate-x-[-50%] w-full max-w-[500px] lg:top-[100px] lg:translate-x-[calc(-100%_-_250px)] lg:w-[300px] lg:border-0 lg:border-transparent ">
+        <li>
+          <div className="flex justify-end">
+            <Button onClick={handleReset}>
+              <RestartAltRoundedIcon
+                fontSize="small"
+                sx={{ color: "#000000" }}
               />
-            </li>
-            <li>
-              <FormGroup className="!flex-row">
-                {Object.entries(typeMap).map(([key, label]) => (
-                  <FormControlLabel
-                    className="w-1/2 m-0"
-                    key={key}
-                    control={
-                      <Checkbox
-                        size="small"
-                        checked={filterTypes.includes(label)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setFilterTypes([...filterTypes, label]);
-                          } else {
-                            setFilterTypes(
-                              filterTypes.filter((t) => t !== label)
-                            );
-                          }
-                        }}
-                      />
-                    }
-                    label={label}
-                    sx={{
-                      margin: "0px",
-                      "& .MuiFormControlLabel-label": { fontSize: 14 },
+            </Button>
+          </div>
+          <ul className="flex items-start relative">
+            {poke1 && poke2 && (
+              <motion.button
+                type="button"
+                onClick={handleVS}
+                disabled={loading}
+                className="absolute left-1/2 top-[20vw] sm:top-[105px] lg:top-[65px] -translate-1/2 cursor-pointer z-20 hover:bg-[rgba(255,158,141,0.4)] transition p-2 rounded-[5px]"
+                animate={{
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{
+                  duration: 0.8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}>
+                <span className="text-[14px] font-bold">Click!</span>
+                <img className="h-[35px]" src="/vs.png" alt="vs아이콘" />
+              </motion.button>
+            )}
+            <PokeDrop dropped={poke1} onDrop={setPoke1} />
+            <PokeDrop dropped={poke2} onDrop={setPoke2} />
+          </ul>
+        </li>
+      </ul>
+
+      <ul className="hidden flex-col gap-y-4 fixed top-[100px] right-1/2 translate-x-[calc(100%_+_250px)] w-[300px] p-5 lg:flex">
+        <li>
+          <TextField
+            id="outlined-basic"
+            label="포켓몬 이름으로 검색하기"
+            variant="outlined"
+            className="w-full"
+            value={filterName}
+            onChange={(e) => setFilterName(e.target.value)}
+          />
+        </li>
+        <li>
+          <FormGroup className="!flex-row">
+            {Object.entries(typeMap).map(([key, label]) => (
+              <FormControlLabel
+                className="w-1/2 m-0"
+                key={key}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={filterTypes.includes(label)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFilterTypes([...filterTypes, label]);
+                      } else {
+                        setFilterTypes(filterTypes.filter((t) => t !== label));
+                      }
                     }}
                   />
-                ))}
-              </FormGroup>
-            </li>
-          </ul>
-        </form>
-      </div>
+                }
+                label={label}
+                sx={{
+                  margin: "0px",
+                  "& .MuiFormControlLabel-label": { fontSize: 14 },
+                }}
+              />
+            ))}
+          </FormGroup>
+        </li>
+      </ul>
+
       {showResult && (
         <Modal open={true} onClose={() => setShowResult(false)}>
           <Box
@@ -244,7 +239,10 @@ const PokeFloat = ({
               top: "50%",
               left: "50%",
               transform: "translate(-50%, -50%)",
-              width: 500,
+              width: {
+                xs: "100%",
+                sm: 500,
+              },
               bgcolor: "background.paper",
               borderRadius: 2,
               boxShadow: 24,
