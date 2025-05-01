@@ -2,11 +2,17 @@ import { useDrag } from "react-dnd";
 import Card from "@mui/material/Card";
 import { Pokemon } from "./type";
 import { useEffect, useRef } from "react";
+import { Preview } from "react-dnd-preview";
 
 interface PokeItemProps {
   pokemon: Pokemon;
   onClick?: () => void;
 }
+
+const isMobile = () => {
+  if (typeof window === "undefined") return false;
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+};
 
 const PokeItem = ({ pokemon, onClick }: PokeItemProps) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -19,6 +25,7 @@ const PokeItem = ({ pokemon, onClick }: PokeItemProps) => {
       engName: pokemon.engName,
       types: pokemon.types,
       description: pokemon.description,
+      image: pokemon.image,
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -32,24 +39,64 @@ const PokeItem = ({ pokemon, onClick }: PokeItemProps) => {
   }, [ref, drag]);
 
   return (
-    <div
-      onClick={onClick}
-      ref={ref}
-      className={`hover:bg-yellow-400 cursor-grab transition-all rounded-[4px] ${
-        isDragging ? "hidden" : ""
-      }`}>
-      <Card variant="outlined" sx={{ backgroundColor: "transparent" }}>
-        <div className="flex justify-center">
-          <img
-            src={pokemon.image}
-            alt={pokemon.name}
-            draggable="false"
-            className="select-none pointer-events-none"
-          />
-        </div>
-        <h3 className="text-center py-2">{pokemon.name}</h3>
-      </Card>
-    </div>
+    <>
+      {isMobile() && (
+        <Preview
+          generator={({ itemType, item, style }) => {
+            if (itemType === "POKEMON_CARD") {
+              const pokemon = item as Pokemon;
+
+              return (
+                <div style={{ ...style, zIndex: 9999, pointerEvents: "none" }}>
+                  <Card variant="outlined" sx={{ backgroundColor: "#fff" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        width: 120,
+                        justifyContent: "center",
+                      }}>
+                      <img
+                        src={pokemon.image}
+                        alt={pokemon.name}
+                        style={{
+                          maxWidth: "80px",
+                          pointerEvents: "none",
+                          userSelect: "none",
+                        }}
+                      />
+                    </div>
+                    <h3 style={{ textAlign: "center", padding: "8px 0" }}>
+                      {pokemon.name}
+                    </h3>
+                  </Card>
+                </div>
+              ) as unknown as React.ReactElement;
+            }
+
+            return null as unknown as React.ReactElement;
+          }}
+        />
+      )}
+
+      <div
+        onClick={onClick}
+        ref={ref}
+        className={`hover:bg-yellow-400 cursor-grab transition-all rounded-[4px] ${
+          isDragging ? "hidden" : ""
+        }`}>
+        <Card variant="outlined" sx={{ backgroundColor: "transparent" }}>
+          <div className="flex justify-center">
+            <img
+              src={pokemon.image}
+              alt={pokemon.name}
+              draggable="false"
+              className="select-none pointer-events-none"
+            />
+          </div>
+          <h3 className="text-center py-2">{pokemon.name}</h3>
+        </Card>
+      </div>
+    </>
   );
 };
 

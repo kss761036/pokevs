@@ -155,7 +155,7 @@ const PokeFloat = ({
         </div>
       )}
 
-      <ul className="flex flex-col gap-y-4 bg-white border-[1px] border-b-0 border-[#aaa] fixed p-5 bottom-0 top-auto left-1/2 translate-x-[-50%] w-full max-w-[500px] lg:top-[100px] lg:translate-x-[calc(-100%_-_250px)] lg:w-[300px] lg:border-0 lg:border-transparent ">
+      <ul className="flex flex-col gap-y-4 bg-white border-[1px] border-b-0 border-[#0000001f] rounded-t-[4px] rounded-r-[4px] fixed p-5 bottom-0 top-auto left-1/2 translate-x-[-50%] w-full max-w-[500px] lg:top-[100px] lg:translate-x-[calc(-100%_-_250px)] lg:w-[300px] lg:border-0 lg:border-transparent ">
         <li>
           <div className="flex justify-end">
             <Button onClick={handleReset}>
@@ -232,7 +232,13 @@ const PokeFloat = ({
       </ul>
 
       {showResult && (
-        <Modal open={true} onClose={() => setShowResult(false)}>
+        <Modal
+          open={true}
+          onClose={() => {
+            setShowResult(false);
+            setPoke1(null);
+            setPoke2(null);
+          }}>
           <Box
             sx={{
               position: "absolute",
@@ -240,7 +246,7 @@ const PokeFloat = ({
               left: "50%",
               transform: "translate(-50%, -50%)",
               width: {
-                xs: "100%",
+                xs: "95%",
                 sm: 500,
               },
               bgcolor: "background.paper",

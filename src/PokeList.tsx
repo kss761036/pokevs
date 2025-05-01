@@ -121,7 +121,7 @@ const PokeList = ({ filterName, filterTypes }: PokeListProps) => {
         hasMore={pokeData.length < filteredData.length}
         loader={<p className="text-center py-4">로딩 중...</p>}
         scrollThreshold={1}>
-        <ul className="flex max-w-[500px] mx-auto flex-wrap">
+        <ul className="flex max-w-[500px] mx-auto flex-wrap px-[10px] md:px-0">
           {pokeData.map((pokemon) => (
             <li className="w-1/3 p-1" key={pokemon.id}>
               <PokeItem
