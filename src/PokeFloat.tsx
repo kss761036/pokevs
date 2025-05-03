@@ -46,6 +46,8 @@ const PokeFloat = ({
     score: "",
   });
 
+  const [searchValue, setSearchValue] = useState(filterName);
+
   const ref1 = useRef<HTMLLIElement>(null);
   const ref2 = useRef<HTMLLIElement>(null);
 
@@ -76,6 +78,14 @@ const PokeFloat = ({
       isOver: monitor.isOver(),
     }),
   }));
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilterName(searchValue);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchValue]);
 
   useEffect(() => {
     if (ref1.current) drop1(ref1.current);
@@ -197,8 +207,8 @@ const PokeFloat = ({
             label="포켓몬 이름으로 검색하기"
             variant="outlined"
             className="w-full"
-            value={filterName}
-            onChange={(e) => setFilterName(e.target.value)}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
         </li>
         <li>
